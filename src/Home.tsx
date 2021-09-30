@@ -52,7 +52,7 @@ const Home = (props: HomeProps) => {
 
   const wallet = useWallet();
   const [candyMachine, setCandyMachine] = useState<CandyMachine>();
-
+  var itemsAvailable = 1;
   const onMint = async () => {
     try {
       setIsMinting(true);
@@ -145,7 +145,7 @@ const Home = (props: HomeProps) => {
         signTransaction: wallet.signTransaction,
       } as anchor.Wallet;
 
-      const { candyMachine, goLiveDate, itemsRemaining } =
+      const { candyMachine, goLiveDate, itemsRemaining, itemsAvailable } =
         await getCandyMachineState(
           anchorWallet,
           props.candyMachineId,
@@ -166,6 +166,18 @@ const Home = (props: HomeProps) => {
 
       {wallet.connected && (
         <p>Balance: {(balance || 0).toLocaleString()} SOL</p>
+      )}
+
+      {wallet.connected && (
+        <p>Items : {(balance || 0).toLocaleString()} SOL</p>
+      )}
+
+      {wallet.connected && (
+        <p>Items Soldout : {(isSoldOut).toLocaleString()}</p>
+      )}
+
+      {wallet.connected && (
+        <p>Start Date : {(startDate).toDateString()}</p>
       )}
 
       <MintContainer>
