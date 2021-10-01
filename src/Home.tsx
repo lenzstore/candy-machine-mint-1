@@ -34,6 +34,7 @@ export interface HomeProps {
   startDate: number;
   treasury: anchor.web3.PublicKey;
   txTimeout: number;
+  whitelistPublicKeys: string[];
 }
 
 const Home = (props: HomeProps) => {
@@ -41,6 +42,7 @@ const Home = (props: HomeProps) => {
   const [isActive, setIsActive] = useState(false); // true when countdown completes
   const [isSoldOut, setIsSoldOut] = useState(false); // true when items remaining is zero
   const [isMinting, setIsMinting] = useState(false); // true when user got to press MINT
+  const [isWhitelist, setIsWhitelist] = useState(false); // true when user got to press MINT
 
   const [alertState, setAlertState] = useState<AlertState>({
     open: false,
@@ -124,6 +126,9 @@ const Home = (props: HomeProps) => {
       if (wallet?.publicKey) {
         const balance = await props.connection.getBalance(wallet.publicKey);
         setBalance(balance / LAMPORTS_PER_SOL);
+        if(props.whitelistPublicKeys.includes(wallet?.publicKey.toString())){
+          setIsWhitelist(true);
+        }
       }
     })();
   }, [wallet, props.connection]);
@@ -185,14 +190,14 @@ const Home = (props: HomeProps) => {
           <ConnectButton>Connect Wallet</ConnectButton>
         ) : (
           <MintButton
-            disabled={isSoldOut || isMinting || !isActive}
+            disabled={isSoldOut || isMinting || !isActive ||!isWhitelist}
             onClick={onMint}
             variant="contained"
           >
             {isSoldOut ? (
               "SOLD OUT"
             ) : isActive ? (
-              isMinting ? (
+              isMinting && isWhitelist ? (
                 <CircularProgress />
               ) : (
                 "MINT"

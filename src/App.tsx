@@ -39,6 +39,12 @@ const connection = new anchor.web3.Connection(rpcHost);
 const startDateSeed = parseInt(process.env.REACT_APP_CANDY_START_DATE!, 10);
 
 const txTimeout = 30000; // milliseconds (confirm this works for your project)
+var publicKeyList = [''];
+if(process.env.REACT_APP_WHITELIST_PUBLIC_KEY_ADDRESSES){
+   publicKeyList = process.env.REACT_APP_WHITELIST_PUBLIC_KEY_ADDRESSES.split(",");
+}
+
+const whitelistPublicKeys = publicKeyList;
 
 const App = () => {
   const endpoint = useMemo(() => clusterApiUrl(network), []);
@@ -59,6 +65,7 @@ const App = () => {
             startDate={startDateSeed}
             treasury={treasury}
             txTimeout={txTimeout}
+            whitelistPublicKeys={whitelistPublicKeys}
           />
         </WalletDialogProvider>
       </WalletProvider>
