@@ -9,22 +9,49 @@ import * as anchor from "@project-serum/anchor";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 import { useWallet } from "@solana/wallet-adapter-react";
-import { WalletDialogButton } from "@solana/wallet-adapter-material-ui";
+import { WalletDialogButton, WalletDisconnectButton } from "@solana/wallet-adapter-material-ui";
 
 import Amplify, {API,graphqlOperation} from 'aws-amplify';
 import { withAuthenticator} from 'aws-amplify-react'; 
 import aws_exports from './aws-exports'; // specify the location of aws-exports.js file on your project
 
+import {useMediaQuery} from 'react-responsive';
+
+// styles for this kit
+import "./assets/css/bootstrap.min.css";
+import "./assets/scss/now-ui-kit.scss?v=1.5.0";
+import "./assets/demo/demo.css?v=1.5.0";
+import "./assets/demo/nucleo-icons-page-styles.css?v=1.5.0";
+
+// core components
+import IndexNavbar from "./components/Navbars/IndexNavbar.js";
+import IndexHeader from "./components/Headers/IndexHeader.js";
+import DarkFooter from "./components/Footers/DarkFooter.js";
+
+// sections for this page
+import Images from "./views/index-sections/Images.js";
+import BasicElements from "./views/index-sections/BasicElements.js";
+import Navbars from "./views/index-sections/Navbars.js";
+import Tabs from "./views/index-sections/Tabs.js";
+import FAQ from "./views/index-sections/FAQ.js";
+import Roadmap from "./views/index-sections/Roadmap.js";
+import Mint from "./views/index-sections/Mint.js";
+
+import {Container, Row } from "reactstrap";
+import mobileBackground from './assets/img/mobile-bg1.gif'
+import wideBackground from './assets/img/wide-background.gif'
 
 import {
   CandyMachine,
   awaitTransactionSignatureConfirmation,
   getCandyMachineState,
   mintOneToken,
-  shortenAddress,
+  shortenAddress
 } from "./candy-machine";
 
 const ConnectButton = styled(WalletDialogButton)``;
+
+const DisconnectButton = styled(WalletDisconnectButton)``;
 
 const CounterText = styled.span``; // add your styles here
 
@@ -63,6 +90,11 @@ const Home = (props: HomeProps) => {
   const [candyMachine, setCandyMachine] = useState<CandyMachine>();
   const [itemsRemaining, setItemsRemaining] = useState(0);
   const [itemsAvailable, setItemsAvailable] = useState(0);
+
+  const isTabletOrMobile = useMediaQuery({ query: '(max-width: 1224px)' })
+
+  const imageUrl = isTabletOrMobile ? mobileBackground : wideBackground;
+
   const onMint = async () => {
     try {
       setIsMinting(true);
@@ -138,6 +170,23 @@ const Home = (props: HomeProps) => {
           setIsWhitelist(true);
         }
       }
+      const anchorWallets = {
+        publicKey: wallet.publicKey,
+        signAllTransactions: wallet.signAllTransactions,
+        signTransaction: wallet.signTransaction,
+      } as anchor.Wallet;
+      const {goLiveDate, itemsRemaining, itemsAvailable} =
+        await getCandyMachineState(
+          anchorWallets,
+          props.candyMachineId,
+          props.connection
+        );
+        setItemsRemaining(itemsRemaining);
+        setItemsAvailable(itemsAvailable);
+        setStartDate(goLiveDate);
+        var temp = new Date();
+        temp.setDate(goLiveDate.getDate()-1);
+        setWhitelistStartDate(temp);
     })();
   }, [wallet, props.connection]);
 
@@ -173,80 +222,84 @@ const Home = (props: HomeProps) => {
       setCandyMachine(candyMachine);
       setItemsRemaining(itemsRemaining);
       setItemsAvailable(itemsAvailable);
+      console.log('connect');
     })();
   }, [wallet, props.candyMachineId, props.connection]);
 
   return (
-    <main>
-      {wallet.connected && (
-        <p>Address: {shortenAddress(wallet.publicKey?.toBase58() || "")}</p>
-      )}
-
-      {wallet.connected && (
-        <p>Balance: {(balance || 0).toLocaleString()} SOL</p>
-      )}
-
-      {wallet.connected && (
-        <p>Items : {(balance || 0).toLocaleString()} SOL</p>
-      )}
-      {wallet.connected && (
-        <p>Items Remain : {(itemsRemaining).toLocaleString()}</p>
-      )}
-      {wallet.connected && (
-        <p>Items Available : {(itemsAvailable).toLocaleString()}</p>
-      )}
-      {wallet.connected && (
-        <p>Items Soldout : {(isSoldOut).toLocaleString()}</p>
-      )}
-      {wallet.connected && (
-        <p>Whitelist Start Date : {(whitelistStartDate).toDateString()}</p>
-      )}
-      {wallet.connected && (
-        <p>Public Start Date : {(startDate).toDateString()}</p>
-      )}
-
-      <MintContainer>
-        {!wallet.connected ? (
-          <ConnectButton>Connect Wallet</ConnectButton>
-        ) : (
-          <MintButton
-            disabled={isSoldOut || isMinting || !isActive ||!isWhitelist}
-            onClick={onMint}
-            variant="contained"
-          >
-            {isSoldOut ? (
-              "SOLD OUT"
-            ) : isActive ? (
-              isMinting && isWhitelist ? (
-                <CircularProgress />
-              ) : (
-                "MINT"
-              )
-            ) : (
-              <Countdown
-                date={startDate}
-                onMount={({ completed }) => completed && setIsActive(true)}
-                onComplete={() => setIsActive(true)}
-                renderer={renderCounter}
-              />
+    <>
+    <IndexNavbar />
+    <div className="wrapper">
+    <div className="page-header clear-filter">
+        <div
+          className="page-header-image"
+          style={{
+            backgroundImage:
+            `url(${imageUrl})`,
+          }}
+        ></div>
+        <Container>
+          <div className="container-content">
+          {
+            <div>
+            {(
+              <p>Items Remain : {(itemsRemaining).toLocaleString()}/{(itemsAvailable).toLocaleString()}</p>
             )}
-          </MintButton>
-        )}
-      </MintContainer>
-
-      <Snackbar
-        open={alertState.open}
-        autoHideDuration={6000}
-        onClose={() => setAlertState({ ...alertState, open: false })}
-      >
-        <Alert
-          onClose={() => setAlertState({ ...alertState, open: false })}
-          severity={alertState.severity}
-        >
-          {alertState.message}
-        </Alert>
-      </Snackbar>
-    </main>
+            {(
+              <p>Whitelist Start Date : {(whitelistStartDate).toDateString()}</p>
+            )}
+            {(
+              <p>Public Start Date : {(startDate).toDateString()}</p>
+            )}
+            <MintContainer>
+              {!wallet.connected ? (
+                <ConnectButton>Connect Wallet</ConnectButton>
+              ) : (
+                <MintButton
+                  disabled={isSoldOut || isMinting || !isActive ||!isWhitelist}
+                  onClick={onMint}
+                  variant="contained"
+                >
+                  {isSoldOut ? (
+                    "SOLD OUT"
+                  ) : isActive ? (
+                    isMinting && isWhitelist ? (
+                      <CircularProgress />
+                    ) : (
+                      "MINT"
+                    )
+                  ) : (
+                    <Countdown
+                      date={startDate}
+                      onMount={({ completed }) => completed && setIsActive(true)}
+                      onComplete={() => setIsActive(true)}
+                      renderer={renderCounter}
+                    />
+                  )}
+                </MintButton>
+                
+              )}
+            </MintContainer>
+            <DisconnectButton disabled={!wallet.connected}>Disconnect</DisconnectButton>
+            <Snackbar
+              open={alertState.open}
+              autoHideDuration={6000}
+              onClose={() => setAlertState({ ...alertState, open: false })}
+            >
+              <Alert
+                onClose={() => setAlertState({ ...alertState, open: false })}
+                severity={alertState.severity}
+              >
+                {alertState.message}
+              </Alert>
+            </Snackbar>
+          </div>
+          }
+          </div>
+        </Container>
+      </div>
+      </div>
+      </>
   );
 };
 

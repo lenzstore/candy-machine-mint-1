@@ -7,7 +7,9 @@ import * as anchor from "@project-serum/anchor";
 import { clusterApiUrl } from "@solana/web3.js";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import {
-  getPhantomWallet
+  getPhantomWallet,
+  getSolflareWallet,
+  getSolletWallet,
 } from "@solana/wallet-adapter-wallets";
 
 import {
@@ -39,7 +41,7 @@ const startDateSeed = parseInt(process.env.REACT_APP_CANDY_START_DATE!, 10);
 const txTimeout = 30000; // milliseconds (confirm this works for your project)
 var publicKeyList = [''];
 if(process.env.REACT_APP_WHITELIST_PUBLIC_KEY_ADDRESSES){
-   publicKeyList = process.env.REACT_APP_WHITELIST_PUBLIC_KEY_ADDRESSES.split(",");
+   publicKeyList = process.env.REACT_APP_WHITELIST_PUBLIC_KEY_ADDRESSES.split(", ");
 }
 
 const whitelistPublicKeys = publicKeyList;
@@ -48,13 +50,13 @@ const App = () => {
   const endpoint = useMemo(() => clusterApiUrl(network), []);
 
   const wallets = useMemo(
-    () => [getPhantomWallet()],
-    [network]
+    () => [getPhantomWallet(), getSolflareWallet(), getSolletWallet()],
+    []
   );
 
   return (
     <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallets}>
+      <WalletProvider wallets={wallets} autoConnect>
         <WalletDialogProvider>
           <Home
             candyMachineId={candyMachineId}
