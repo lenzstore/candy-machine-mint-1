@@ -11,6 +11,11 @@ import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletDialogButton } from "@solana/wallet-adapter-material-ui";
 
+import Amplify, {API,graphqlOperation} from 'aws-amplify';
+import { withAuthenticator} from 'aws-amplify-react'; 
+import aws_exports from './aws-exports'; // specify the location of aws-exports.js file on your project
+
+
 import {
   CandyMachine,
   awaitTransactionSignatureConfirmation,
@@ -26,6 +31,8 @@ const CounterText = styled.span``; // add your styles here
 const MintContainer = styled.div``; // add your styles here
 
 const MintButton = styled(Button)``; // add your styles here
+
+Amplify.configure(aws_exports);
 
 export interface HomeProps {
   candyMachineId: anchor.web3.PublicKey;
@@ -51,10 +58,11 @@ const Home = (props: HomeProps) => {
   });
 
   const [startDate, setStartDate] = useState(new Date(props.startDate));
-
+  const [whitelistStartDate, setWhitelistStartDate] = useState(new Date());
   const wallet = useWallet();
   const [candyMachine, setCandyMachine] = useState<CandyMachine>();
-  var itemsAvailable = 1;
+  const [itemsRemaining, setItemsRemaining] = useState(0);
+  const [itemsAvailable, setItemsAvailable] = useState(0);
   const onMint = async () => {
     try {
       setIsMinting(true);
@@ -159,7 +167,12 @@ const Home = (props: HomeProps) => {
 
       setIsSoldOut(itemsRemaining === 0);
       setStartDate(goLiveDate);
+      var temp = new Date();
+      temp.setDate(goLiveDate.getDate()-1);
+      setWhitelistStartDate(temp);
       setCandyMachine(candyMachine);
+      setItemsRemaining(itemsRemaining);
+      setItemsAvailable(itemsAvailable);
     })();
   }, [wallet, props.candyMachineId, props.connection]);
 
@@ -176,13 +189,20 @@ const Home = (props: HomeProps) => {
       {wallet.connected && (
         <p>Items : {(balance || 0).toLocaleString()} SOL</p>
       )}
-
+      {wallet.connected && (
+        <p>Items Remain : {(itemsRemaining).toLocaleString()}</p>
+      )}
+      {wallet.connected && (
+        <p>Items Available : {(itemsAvailable).toLocaleString()}</p>
+      )}
       {wallet.connected && (
         <p>Items Soldout : {(isSoldOut).toLocaleString()}</p>
       )}
-
       {wallet.connected && (
-        <p>Start Date : {(startDate).toDateString()}</p>
+        <p>Whitelist Start Date : {(whitelistStartDate).toDateString()}</p>
+      )}
+      {wallet.connected && (
+        <p>Public Start Date : {(startDate).toDateString()}</p>
       )}
 
       <MintContainer>

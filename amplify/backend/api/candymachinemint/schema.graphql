@@ -1,0 +1,11 @@
+type WhitelistAddress @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  wallet: String
+}
+
+type MintCount @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  wallet: String
+  count: Int
+}
+ 

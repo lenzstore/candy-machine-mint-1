@@ -7,9 +7,7 @@ import * as anchor from "@project-serum/anchor";
 import { clusterApiUrl } from "@solana/web3.js";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import {
-  getPhantomWallet,
-  getSolflareWallet,
-  getSolletWallet,
+  getPhantomWallet
 } from "@solana/wallet-adapter-wallets";
 
 import {
@@ -50,13 +48,13 @@ const App = () => {
   const endpoint = useMemo(() => clusterApiUrl(network), []);
 
   const wallets = useMemo(
-    () => [getPhantomWallet(), getSolflareWallet(), getSolletWallet()],
-    []
+    () => [getPhantomWallet()],
+    [network]
   );
 
   return (
     <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallets} autoConnect>
+      <WalletProvider wallets={wallets}>
         <WalletDialogProvider>
           <Home
             candyMachineId={candyMachineId}
