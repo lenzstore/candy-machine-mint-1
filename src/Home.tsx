@@ -41,6 +41,15 @@ import {Container, Row } from "reactstrap";
 import mobileBackground from './assets/img/mobile-bg1.gif'
 import wideBackground from './assets/img/wide-background.gif'
 
+//export * from './API';
+//export * from './graphql/mutations';
+//export * from './graphql/queries';
+//export * from './graphql/subscriptions';
+import {ListWhitelistAddressesQuery, MintCount} from './API';
+
+import {listWhitelistAddresses, syncMintCounts, getMintCount} from './graphql/queries';
+import {createMintCount, updateMintCount} from './graphql/mutations'
+
 import {
   CandyMachine,
   awaitTransactionSignatureConfirmation,
@@ -48,6 +57,7 @@ import {
   mintOneToken,
   shortenAddress
 } from "./candy-machine";
+import { WhitelistAddress } from "./models";
 
 const ConnectButton = styled(WalletDialogButton)``;
 
@@ -77,7 +87,7 @@ const Home = (props: HomeProps) => {
   const [isSoldOut, setIsSoldOut] = useState(false); // true when items remaining is zero
   const [isMinting, setIsMinting] = useState(false); // true when user got to press MINT
   const [isWhitelist, setIsWhitelist] = useState(false); // true when user got to press MINT
-
+  const whitelistMintLimit = 2;
   const [alertState, setAlertState] = useState<AlertState>({
     open: false,
     message: "",
@@ -94,6 +104,17 @@ const Home = (props: HomeProps) => {
   const isTabletOrMobile = useMediaQuery({ query: '(max-width: 1224px)' })
 
   const imageUrl = isTabletOrMobile ? mobileBackground : wideBackground;
+
+  const readWhitelist = `query listWhitelistAddresses{
+    listWhitelistAddresses{
+      items{
+        id
+        wallet
+      }
+    }
+  }`;
+
+  const [whitelistList, setWhitelistList] = useState();
 
   const onMint = async () => {
     try {
@@ -163,12 +184,30 @@ const Home = (props: HomeProps) => {
 
   useEffect(() => {
     (async () => {
+      const whiteList = await API.graphql(graphqlOperation(listWhitelistAddresses)) as { data: ListWhitelistAddressesQuery };
+      
+      //const mintCount = await API.graphql(graphqlOperation(getMintCount)) as { data: MintCount };
+
       if (wallet?.publicKey) {
+        const walletAddress = wallet?.publicKey;
         const balance = await props.connection.getBalance(wallet.publicKey);
         setBalance(balance / LAMPORTS_PER_SOL);
-        if(props.whitelistPublicKeys.includes(wallet?.publicKey.toString())){
-          setIsWhitelist(true);
+        //console.log(whiteList.data.listWhitelistAddresses?.items.filter(e => e?.wallet===walletAddress.toString()));
+        const whitelistItem = whiteList.data.listWhitelistAddresses?.items?.filter(e => e?.wallet===walletAddress.toString());
+        if(whitelistItem){
+          if(whitelistItem[0]?.wallet)
+            setIsWhitelist(true);
         }
+        if(whiteList.data.listWhitelistAddresses){
+          const items = whiteList.data.listWhitelistAddresses.items;
+          console.log(items);
+          if(items)
+            console.log(items.filter(e => e?.wallet===walletAddress.toString()));
+          /*if(whiteList.data.listWhitelistAddresses?.items.includes(wallet?.publicKey.toString())){
+            setIsWhitelist(true);
+          }*/
+        }
+        
       }
       const anchorWallets = {
         publicKey: wallet.publicKey,

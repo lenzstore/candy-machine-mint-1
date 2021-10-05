@@ -534,9 +534,13 @@ p{
   font-size: 23px !important;
 }
 
-.container{
+.container-content{
   border: 2px !important;
   border-color: white !important;
+}
+
+.MuiButton-root{
+  margin: 5px !important;
 }
 
 @media screen and (max-width: 991px) {

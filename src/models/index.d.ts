@@ -15,6 +15,7 @@ type MintCountMetaData = {
 export declare class WhitelistAddress {
   readonly id: string;
   readonly wallet?: string;
+  readonly count?: number;
   readonly createdAt?: string;
   readonly updatedAt?: string;
   constructor(init: ModelInit<WhitelistAddress, WhitelistAddressMetaData>);
