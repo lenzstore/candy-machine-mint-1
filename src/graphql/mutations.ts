@@ -10,6 +10,7 @@ export const createWhitelistAddress = /* GraphQL */ `
     createWhitelistAddress(input: $input, condition: $condition) {
       id
       wallet
+      count
       _version
       _deleted
       _lastChangedAt
@@ -26,6 +27,7 @@ export const updateWhitelistAddress = /* GraphQL */ `
     updateWhitelistAddress(input: $input, condition: $condition) {
       id
       wallet
+      count
       _version
       _deleted
       _lastChangedAt
@@ -42,6 +44,7 @@ export const deleteWhitelistAddress = /* GraphQL */ `
     deleteWhitelistAddress(input: $input, condition: $condition) {
       id
       wallet
+      count
       _version
       _deleted
       _lastChangedAt

@@ -7,6 +7,7 @@ export const getWhitelistAddress = /* GraphQL */ `
     getWhitelistAddress(id: $id) {
       id
       wallet
+      count
       _version
       _deleted
       _lastChangedAt
@@ -29,6 +30,7 @@ export const listWhitelistAddresses = /* GraphQL */ `
       items {
         id
         wallet
+        count
         _version
         _deleted
         _lastChangedAt
@@ -56,6 +58,7 @@ export const syncWhitelistAddresses = /* GraphQL */ `
       items {
         id
         wallet
+        count
         _version
         _deleted
         _lastChangedAt

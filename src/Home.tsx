@@ -14,7 +14,7 @@ import { WalletDialogButton, WalletDisconnectButton } from "@solana/wallet-adapt
 import Amplify, {API,graphqlOperation} from 'aws-amplify';
 import { withAuthenticator} from 'aws-amplify-react'; 
 import aws_exports from './aws-exports'; // specify the location of aws-exports.js file on your project
-
+import GraphQLAPI, { GRAPHQL_AUTH_MODE } from '@aws-amplify/api-graphql';
 import {useMediaQuery} from 'react-responsive';
 
 // styles for this kit
@@ -39,7 +39,10 @@ import Mint from "./views/index-sections/Mint.js";
 
 import {Container, Row } from "reactstrap";
 import mobileBackground from './assets/img/mobile-bg1.gif'
-import wideBackground from './assets/img/wide-background.gif'
+import wideBackground from './assets/img/mint_page_bg.jpg'
+
+import { DataStore } from '@aws-amplify/datastore';
+import { WhitelistAddress } from './models';
 
 //export * from './API';
 //export * from './graphql/mutations';
@@ -48,7 +51,8 @@ import wideBackground from './assets/img/wide-background.gif'
 import {ListWhitelistAddressesQuery, MintCount} from './API';
 
 import {listWhitelistAddresses, syncMintCounts, getMintCount} from './graphql/queries';
-import {createMintCount, updateMintCount} from './graphql/mutations'
+import {createMintCount, updateMintCount, updateWhitelistAddress} from './graphql/mutations'
+
 
 import {
   CandyMachine,
@@ -57,7 +61,7 @@ import {
   mintOneToken,
   shortenAddress
 } from "./candy-machine";
-import { WhitelistAddress } from "./models";
+import { isEnumMember } from "typescript";
 
 const ConnectButton = styled(WalletDialogButton)``;
 
@@ -87,7 +91,8 @@ const Home = (props: HomeProps) => {
   const [isSoldOut, setIsSoldOut] = useState(false); // true when items remaining is zero
   const [isMinting, setIsMinting] = useState(false); // true when user got to press MINT
   const [isWhitelist, setIsWhitelist] = useState(false); // true when user got to press MINT
-  const whitelistMintLimit = 2;
+  const whitelistMintLimit = 3;
+  const [whitelistItem, setWhitelistItem] = useState<WhitelistAddress>();
   const [alertState, setAlertState] = useState<AlertState>({
     open: false,
     message: "",
@@ -104,17 +109,6 @@ const Home = (props: HomeProps) => {
   const isTabletOrMobile = useMediaQuery({ query: '(max-width: 1224px)' })
 
   const imageUrl = isTabletOrMobile ? mobileBackground : wideBackground;
-
-  const readWhitelist = `query listWhitelistAddresses{
-    listWhitelistAddresses{
-      items{
-        id
-        wallet
-      }
-    }
-  }`;
-
-  const [whitelistList, setWhitelistList] = useState();
 
   const onMint = async () => {
     try {
@@ -141,6 +135,15 @@ const Home = (props: HomeProps) => {
             message: "Congratulations! Mint succeeded!",
             severity: "success",
           });
+          if(whitelistItem?.count){
+            await DataStore.save(WhitelistAddress.copyOf(whitelistItem, item => {
+              // Update the values on {item} variable to update DataStore entry
+              item.count = item.count + 1;
+              if(item.count >= whitelistMintLimit){
+                setIsWhitelist(false);
+              }
+            }));
+          }
         } else {
           setAlertState({
             open: true,
@@ -184,30 +187,20 @@ const Home = (props: HomeProps) => {
 
   useEffect(() => {
     (async () => {
-      const whiteList = await API.graphql(graphqlOperation(listWhitelistAddresses)) as { data: ListWhitelistAddressesQuery };
-      
-      //const mintCount = await API.graphql(graphqlOperation(getMintCount)) as { data: MintCount };
-
+      const models = await DataStore.query(WhitelistAddress);
       if (wallet?.publicKey) {
         const walletAddress = wallet?.publicKey;
         const balance = await props.connection.getBalance(wallet.publicKey);
         setBalance(balance / LAMPORTS_PER_SOL);
-        //console.log(whiteList.data.listWhitelistAddresses?.items.filter(e => e?.wallet===walletAddress.toString()));
-        const whitelistItem = whiteList.data.listWhitelistAddresses?.items?.filter(e => e?.wallet===walletAddress.toString());
-        if(whitelistItem){
-          if(whitelistItem[0]?.wallet)
+        const item = models.filter(e => e?.wallet===walletAddress.toString());
+        if(item && item.length > 0){
+          setWhitelistItem(item[0]);
+          /* Models in DataStore are immutable. To update a record you must use the copyOf function
+          to apply updates to the item’s fields rather than mutating the instance directly */
+          if(whitelistItem && whitelistItem.count < whitelistMintLimit){
             setIsWhitelist(true);
+          }
         }
-        if(whiteList.data.listWhitelistAddresses){
-          const items = whiteList.data.listWhitelistAddresses.items;
-          console.log(items);
-          if(items)
-            console.log(items.filter(e => e?.wallet===walletAddress.toString()));
-          /*if(whiteList.data.listWhitelistAddresses?.items.includes(wallet?.publicKey.toString())){
-            setIsWhitelist(true);
-          }*/
-        }
-        
       }
       const anchorWallets = {
         publicKey: wallet.publicKey,
@@ -261,7 +254,6 @@ const Home = (props: HomeProps) => {
       setCandyMachine(candyMachine);
       setItemsRemaining(itemsRemaining);
       setItemsAvailable(itemsAvailable);
-      console.log('connect');
     })();
   }, [wallet, props.candyMachineId, props.connection]);
 
@@ -285,10 +277,10 @@ const Home = (props: HomeProps) => {
               <p>Items Remain : {(itemsRemaining).toLocaleString()}/{(itemsAvailable).toLocaleString()}</p>
             )}
             {(
-              <p>Whitelist Start Date : {(whitelistStartDate).toDateString()}</p>
+              <p>Pre-sale Date : {(whitelistStartDate).toDateString()}</p>
             )}
             {(
-              <p>Public Start Date : {(startDate).toDateString()}</p>
+              <p>Public Sale Date : {(startDate).toDateString()}</p>
             )}
             <MintContainer>
               {!wallet.connected ? (

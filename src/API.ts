@@ -4,12 +4,14 @@
 
 export type CreateWhitelistAddressInput = {
   id?: string | null,
-  wallet?: string | null,
+  wallet: string,
+  count: number,
   _version?: number | null,
 };
 
 export type ModelWhitelistAddressConditionInput = {
   wallet?: ModelStringInput | null,
+  count?: ModelIntInput | null,
   and?: Array< ModelWhitelistAddressConditionInput | null > | null,
   or?: Array< ModelWhitelistAddressConditionInput | null > | null,
   not?: ModelWhitelistAddressConditionInput | null,
@@ -55,10 +57,23 @@ export type ModelSizeInput = {
   between?: Array< number | null > | null,
 };
 
+export type ModelIntInput = {
+  ne?: number | null,
+  eq?: number | null,
+  le?: number | null,
+  lt?: number | null,
+  ge?: number | null,
+  gt?: number | null,
+  between?: Array< number | null > | null,
+  attributeExists?: boolean | null,
+  attributeType?: ModelAttributeTypes | null,
+};
+
 export type WhitelistAddress = {
   __typename: "WhitelistAddress",
   id: string,
-  wallet?: string | null,
+  wallet: string,
+  count: number,
   _version: number,
   _deleted?: boolean | null,
   _lastChangedAt: number,
@@ -69,6 +84,7 @@ export type WhitelistAddress = {
 export type UpdateWhitelistAddressInput = {
   id: string,
   wallet?: string | null,
+  count?: number | null,
   _version?: number | null,
 };
 
@@ -90,18 +106,6 @@ export type ModelMintCountConditionInput = {
   and?: Array< ModelMintCountConditionInput | null > | null,
   or?: Array< ModelMintCountConditionInput | null > | null,
   not?: ModelMintCountConditionInput | null,
-};
-
-export type ModelIntInput = {
-  ne?: number | null,
-  eq?: number | null,
-  le?: number | null,
-  lt?: number | null,
-  ge?: number | null,
-  gt?: number | null,
-  between?: Array< number | null > | null,
-  attributeExists?: boolean | null,
-  attributeType?: ModelAttributeTypes | null,
 };
 
 export type MintCount = {
@@ -131,6 +135,7 @@ export type DeleteMintCountInput = {
 export type ModelWhitelistAddressFilterInput = {
   id?: ModelIDInput | null,
   wallet?: ModelStringInput | null,
+  count?: ModelIntInput | null,
   and?: Array< ModelWhitelistAddressFilterInput | null > | null,
   or?: Array< ModelWhitelistAddressFilterInput | null > | null,
   not?: ModelWhitelistAddressFilterInput | null,
@@ -184,7 +189,8 @@ export type CreateWhitelistAddressMutation = {
   createWhitelistAddress?:  {
     __typename: "WhitelistAddress",
     id: string,
-    wallet?: string | null,
+    wallet: string,
+    count: number,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
@@ -202,7 +208,8 @@ export type UpdateWhitelistAddressMutation = {
   updateWhitelistAddress?:  {
     __typename: "WhitelistAddress",
     id: string,
-    wallet?: string | null,
+    wallet: string,
+    count: number,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
@@ -220,7 +227,8 @@ export type DeleteWhitelistAddressMutation = {
   deleteWhitelistAddress?:  {
     __typename: "WhitelistAddress",
     id: string,
-    wallet?: string | null,
+    wallet: string,
+    count: number,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
@@ -294,7 +302,8 @@ export type GetWhitelistAddressQuery = {
   getWhitelistAddress?:  {
     __typename: "WhitelistAddress",
     id: string,
-    wallet?: string | null,
+    wallet: string,
+    count: number,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
@@ -315,7 +324,8 @@ export type ListWhitelistAddressesQuery = {
     items?:  Array< {
       __typename: "WhitelistAddress",
       id: string,
-      wallet?: string | null,
+      wallet: string,
+      count: number,
       _version: number,
       _deleted?: boolean | null,
       _lastChangedAt: number,
@@ -340,7 +350,8 @@ export type SyncWhitelistAddressesQuery = {
     items?:  Array< {
       __typename: "WhitelistAddress",
       id: string,
-      wallet?: string | null,
+      wallet: string,
+      count: number,
       _version: number,
       _deleted?: boolean | null,
       _lastChangedAt: number,
@@ -425,7 +436,8 @@ export type OnCreateWhitelistAddressSubscription = {
   onCreateWhitelistAddress?:  {
     __typename: "WhitelistAddress",
     id: string,
-    wallet?: string | null,
+    wallet: string,
+    count: number,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
@@ -438,7 +450,8 @@ export type OnUpdateWhitelistAddressSubscription = {
   onUpdateWhitelistAddress?:  {
     __typename: "WhitelistAddress",
     id: string,
-    wallet?: string | null,
+    wallet: string,
+    count: number,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
@@ -451,7 +464,8 @@ export type OnDeleteWhitelistAddressSubscription = {
   onDeleteWhitelistAddress?:  {
     __typename: "WhitelistAddress",
     id: string,
-    wallet?: string | null,
+    wallet: string,
+    count: number,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,

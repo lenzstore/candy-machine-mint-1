@@ -94,6 +94,20 @@ function IndexNavbar() {
                   <img className="nav-button" src={require("../../assets/img/faq.png").default}></img>
                 </NavLink>
               </NavItem>
+              <NavItem>
+                <NavLink
+                  href="https://www.wsps.io/index"
+                >
+                  <img className="nav-button" src={require("../../assets/img/team.png").default}></img>
+                </NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink
+                  href="/"
+                >
+                  <img className="nav-button" src={require("../../assets/img/mint_button.png").default}></img>
+                </NavLink>
+              </NavItem>
             </Nav>
           </Collapse>
         </Container>

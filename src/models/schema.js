@@ -14,14 +14,14 @@ export const schema = {
                     "name": "wallet",
                     "isArray": false,
                     "type": "String",
-                    "isRequired": false,
+                    "isRequired": true,
                     "attributes": []
                 },
                 "count": {
                     "name": "count",
                     "isArray": false,
                     "type": "Int",
-                    "isRequired": false,
+                    "isRequired": true,
                     "attributes": []
                 },
                 "createdAt": {
@@ -135,5 +135,5 @@ export const schema = {
     },
     "enums": {},
     "nonModels": {},
-    "version": "155b74a70a52961aeb41d6b9412fc995"
+    "version": "42e95d5ee9851a1017d7b4fd7aa2a1a4"
 };

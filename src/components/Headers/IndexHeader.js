@@ -26,7 +26,7 @@ function IndexHeader() {
         pageHeader.current.style.transform =
           "translate3d(0," + windowScrollTop + "px,0)";
       };
-      //window.addEventListener("scroll", updateScroll);
+      window.addEventListener("scroll", updateScroll);
       return function cleanup() {
         window.removeEventListener("scroll", updateScroll);
       };
