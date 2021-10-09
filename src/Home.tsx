@@ -135,7 +135,7 @@ const Home = (props: HomeProps) => {
             message: "Congratulations! Mint succeeded!",
             severity: "success",
           });
-          if(whitelistItem?.count){
+          if(whitelistItem){
             await DataStore.save(WhitelistAddress.copyOf(whitelistItem, item => {
               // Update the values on {item} variable to update DataStore entry
               item.count = item.count + 1;
@@ -199,6 +199,11 @@ const Home = (props: HomeProps) => {
           to apply updates to the item’s fields rather than mutating the instance directly */
           if(whitelistItem && whitelistItem.count < whitelistMintLimit){
             setIsWhitelist(true);
+          }else{
+            console.log(item[0]);
+            if(item[0].count < whitelistMintLimit){
+              setIsWhitelist(true);
+            }
           }
         }
       }
@@ -277,10 +282,10 @@ const Home = (props: HomeProps) => {
               <p>Items Remain : {(itemsRemaining).toLocaleString()}/{(itemsAvailable).toLocaleString()}</p>
             )}
             {(
-              <p>Pre-sale Date : {(whitelistStartDate).toDateString()}</p>
+              <p>Pre-sale Date : {(new Date(props.startDate * 1000)).toLocaleDateString()} 9PM UTC(PM EST)</p>
             )}
             {(
-              <p>Public Sale Date : {(startDate).toDateString()}</p>
+              <p>Public Sale Date : {(new Date(props.startDate * 1000)).toLocaleDateString()} 10PM UTC(6PM EST)</p>
             )}
             <MintContainer>
               {!wallet.connected ? (
