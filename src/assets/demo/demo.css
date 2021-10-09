@@ -564,3 +564,14 @@ p{
 body{
   font-family: 'Roboto', sans-serif !important;
 }
+
+.MuiButton-label{
+  color: white !important;
+}
+
+.mint-button{
+  background-color: black !important;
+}
+.minting-button{
+  height: 30px;
+}

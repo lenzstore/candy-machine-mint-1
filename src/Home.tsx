@@ -294,7 +294,8 @@ const Home = (props: HomeProps) => {
                 <MintButton
                   disabled={isSoldOut || isMinting || !isActive ||!isWhitelist}
                   onClick={onMint}
-                  variant="contained"
+                  variant="outlined"
+                  className="mint-button"
                 >
                   {isSoldOut ? (
                     "SOLD OUT"
@@ -302,7 +303,7 @@ const Home = (props: HomeProps) => {
                     isMinting && isWhitelist ? (
                       <CircularProgress />
                     ) : (
-                      "MINT"
+                      <img className="minting-button" src={require("./assets/img/mint_button.png").default}></img>
                     )
                   ) : (
                     <Countdown
