@@ -91,7 +91,9 @@ const Home = (props: HomeProps) => {
   const [isSoldOut, setIsSoldOut] = useState(false); // true when items remaining is zero
   const [isMinting, setIsMinting] = useState(false); // true when user got to press MINT
   const [isWhitelist, setIsWhitelist] = useState(false); // true when user got to press MINT
+  const [isPublicSale, setIsPublicSale] = useState(false); // true when user got to press MINT
   const whitelistMintLimit = 1;
+  const whitelistMintHour = 3600000 // 1 hour
   const [whitelistItem, setWhitelistItem] = useState<WhitelistAddress>();
   const [alertState, setAlertState] = useState<AlertState>({
     open: false,
@@ -141,6 +143,11 @@ const Home = (props: HomeProps) => {
               item.count = item.count + 1;
               if(item.count >= whitelistMintLimit){
                 setIsWhitelist(false);
+              }
+              if(Date.now() > (props.startDate * 1000 + whitelistMintHour * 1)){
+                console.log(new Date(Date.now()).toLocaleTimeString());
+                setIsPublicSale(true);
+                setIsWhitelist(true);
               }
               setWhitelistItem(item);
             }));
@@ -260,6 +267,13 @@ const Home = (props: HomeProps) => {
       setCandyMachine(candyMachine);
       setItemsRemaining(itemsRemaining);
       setItemsAvailable(itemsAvailable);
+      console.log(Date.now());
+      console.log(props.startDate * 1000);
+      if(Date.now() > (props.startDate * 1000 + whitelistMintHour * 1)){
+        console.log(new Date(Date.now()).toLocaleTimeString());
+        setIsPublicSale(true);
+        setIsWhitelist(true);
+      }
     })();
   }, [wallet, props.candyMachineId, props.connection]);
 
@@ -293,7 +307,7 @@ const Home = (props: HomeProps) => {
                 <ConnectButton>Connect Wallet</ConnectButton>
               ) : (
                 <MintButton
-                  disabled={isSoldOut || isMinting || !isActive ||!isWhitelist}
+                  disabled={isSoldOut || isMinting || !isActive ||!isWhitelist || !isPublicSale}
                   onClick={onMint}
                   variant="outlined"
                   className="mint-button"
@@ -301,6 +315,9 @@ const Home = (props: HomeProps) => {
                   {isSoldOut ? (
                     "SOLD OUT"
                   ) : isActive ? (
+                    !isWhitelist ? (
+                      <img className="minting-button" src={require("./assets/img/mint_button.png").default}></img>
+                    ) :
                     isMinting && isWhitelist ? (
                       <CircularProgress />
                     ) : (
