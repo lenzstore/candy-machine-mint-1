@@ -91,7 +91,7 @@ const Home = (props: HomeProps) => {
   const [isSoldOut, setIsSoldOut] = useState(false); // true when items remaining is zero
   const [isMinting, setIsMinting] = useState(false); // true when user got to press MINT
   const [isWhitelist, setIsWhitelist] = useState(false); // true when user got to press MINT
-  const whitelistMintLimit = 3;
+  const whitelistMintLimit = 1;
   const [whitelistItem, setWhitelistItem] = useState<WhitelistAddress>();
   const [alertState, setAlertState] = useState<AlertState>({
     open: false,
@@ -142,6 +142,7 @@ const Home = (props: HomeProps) => {
               if(item.count >= whitelistMintLimit){
                 setIsWhitelist(false);
               }
+              setWhitelistItem(item);
             }));
           }
         } else {
